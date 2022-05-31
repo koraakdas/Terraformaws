@@ -21,10 +21,10 @@ resource "aws_vpc" "myvpc" {
   }
 }
 
-variable "public_subnet_cidr" {
-  # Declaring a Variable to use as Count meta Function for two Public Subnets
-  type    = list
-  default = ["10.0.0.0/24", "10.0.1.0/24"]
+locals {
+  # Declaring Local to use in count for the Public Subnet
+
+  public_subnet_cidr =["10.0.0.0/24", "10.0.1.0/24"]
 }
 
 resource "aws_subnet" "public" {
@@ -32,11 +32,11 @@ resource "aws_subnet" "public" {
   count = 2
 
   vpc_id     = aws_vpc.myvpc.id
-  cidr_block = var.public_subnet_cidr[count.index]
+  cidr_block = local.public_subnet_cidr[count.index]
 }
 
 locals {
-  # Declaring Local to use in count for the Private Suv=bnet
+  # Declaring Local to use in count for the Private Subnet
 
   private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
 }
@@ -46,7 +46,6 @@ resource "aws_subnet" "private" {
   count = 2
 
   vpc_id     = aws_vpc.myvpc.id
-  map_public_ip_on_launch = true
   cidr_block = local.private_subnet_cidr[count.index]
 }
 
@@ -98,13 +97,3 @@ resource "aws_route_table_association" "associatepriv" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.privateroute[count.index].id
 }
-
-resource "aws_default_route_table" "defaultroute" {
-  default_route_table_id = aws_vpc.myvpc.default_route_table_id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
-}
-
