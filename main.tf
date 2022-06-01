@@ -22,9 +22,10 @@ resource "aws_vpc" "myvpc" {
 }
 
 locals {
-  # Declaring Local to use in count for the Public Subnet
+  # Declaring Locals to use in aws_subnet resource blocks
 
   public_subnet_cidr =["10.0.0.0/24", "10.0.1.0/24"]
+  private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
 resource "aws_subnet" "public" {
@@ -34,13 +35,6 @@ resource "aws_subnet" "public" {
   vpc_id     = aws_vpc.myvpc.id
   cidr_block = local.public_subnet_cidr[count.index]
 }
-
-locals {
-  # Declaring Local to use in count for the Private Subnet
-
-  private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
-}
-
 resource "aws_subnet" "private" {
 
   count = 2
@@ -74,7 +68,6 @@ resource "aws_route_table" "publicroute" {
 }
 resource "aws_route_table_association" "associatepub" {
 
-#Route Table and Subnet association.
   count = 2
 
   subnet_id      = aws_subnet.public[count.index].id
@@ -98,3 +91,4 @@ resource "aws_route_table_association" "associatepriv" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.privateroute[count.index].id
 }
+
