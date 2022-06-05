@@ -13,7 +13,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# Environment Variable 
 variable "env_code" {
   type        = string
   default     = "MyTest"
@@ -22,7 +21,6 @@ variable "env_code" {
 
 # All Resources for AWS:
 
-# Create a VPC
 resource "aws_vpc" "myvpc" {
   cidr_block = "10.0.0.0/16"
 
@@ -33,15 +31,12 @@ resource "aws_vpc" "myvpc" {
 
 
 locals {
-  # Declaring Locals to use in aws_subnet resource blocks
-
   public_subnet_cidr  = ["10.0.0.0/24", "10.0.1.0/24"]
   private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
 
 resource "aws_subnet" "public" {
-  # Defining Public subnets
   count = length(local.public_subnet_cidr)
 
   vpc_id     = aws_vpc.myvpc.id
@@ -54,7 +49,6 @@ resource "aws_subnet" "public" {
 
 
 resource "aws_subnet" "private" {
-  # Defining Private subnets
   count = length(local.private_subnet_cidr)
 
   vpc_id     = aws_vpc.myvpc.id
@@ -67,7 +61,6 @@ resource "aws_subnet" "private" {
 
 
 resource "aws_internet_gateway" "igw" {
-  # Internet Gateway for VPC's External Access
 
   vpc_id = aws_vpc.myvpc.id
 
@@ -78,7 +71,6 @@ resource "aws_internet_gateway" "igw" {
 
 
 resource "aws_eip" "eipnat" {
-  # Defining Elastic IP for Each Nat Gateway
   count = length(local.private_subnet_cidr)
 
   vpc = true
@@ -90,7 +82,6 @@ resource "aws_eip" "eipnat" {
 
 
 resource "aws_nat_gateway" "ngw" {
-  # Defining Nat Gateway for Private Subnets
   count = length(local.private_subnet_cidr)
 
   allocation_id = aws_eip.eipnat[count.index].id
@@ -103,7 +94,6 @@ resource "aws_nat_gateway" "ngw" {
 
 
 resource "aws_route_table" "publicroute" {
-  # Public Route Table
 
   vpc_id = aws_vpc.myvpc.id
 
@@ -119,7 +109,6 @@ resource "aws_route_table" "publicroute" {
 
 
 resource "aws_route_table_association" "associatepub" {
-  #Public Route Table Associations
   count = length(local.public_subnet_cidr)
 
   subnet_id      = aws_subnet.public[count.index].id
@@ -128,7 +117,6 @@ resource "aws_route_table_association" "associatepub" {
 
 
 resource "aws_route_table" "privateroute" {
-  #Public Route Table
   count = length(local.private_subnet_cidr)
 
   vpc_id = aws_vpc.myvpc.id
@@ -145,7 +133,6 @@ resource "aws_route_table" "privateroute" {
 
 
 resource "aws_route_table_association" "associatepriv" {
-  #Private Route Table Associations
   count = length(local.private_subnet_cidr)
 
   subnet_id      = aws_subnet.private[count.index].id
