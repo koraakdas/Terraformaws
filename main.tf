@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-
 # Provider Block
 provider "aws" {
   region = "us-east-1"
@@ -29,12 +28,10 @@ resource "aws_vpc" "myvpc" {
   }
 }
 
-
 locals {
   public_subnet_cidr  = ["10.0.0.0/24", "10.0.1.0/24"]
   private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
 }
-
 
 resource "aws_subnet" "public" {
   count = length(local.public_subnet_cidr)
@@ -47,7 +44,6 @@ resource "aws_subnet" "public" {
   }
 }
 
-
 resource "aws_subnet" "private" {
   count = length(local.private_subnet_cidr)
 
@@ -59,7 +55,6 @@ resource "aws_subnet" "private" {
   }
 }
 
-
 resource "aws_internet_gateway" "igw" {
 
   vpc_id = aws_vpc.myvpc.id
@@ -68,7 +63,6 @@ resource "aws_internet_gateway" "igw" {
     Name = "${var.env_code}-IGW"
   }
 }
-
 
 resource "aws_eip" "eipnat" {
   count = length(local.private_subnet_cidr)
@@ -80,7 +74,6 @@ resource "aws_eip" "eipnat" {
   }
 }
 
-
 resource "aws_nat_gateway" "ngw" {
   count = length(local.private_subnet_cidr)
 
@@ -91,7 +84,6 @@ resource "aws_nat_gateway" "ngw" {
     Name = "${var.env_code}-NGW${count.index}"
   }
 }
-
 
 resource "aws_route_table" "publicroute" {
 
@@ -107,14 +99,12 @@ resource "aws_route_table" "publicroute" {
   }
 }
 
-
 resource "aws_route_table_association" "associatepub" {
   count = length(local.public_subnet_cidr)
 
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.publicroute.id
 }
-
 
 resource "aws_route_table" "privateroute" {
   count = length(local.private_subnet_cidr)
@@ -130,7 +120,6 @@ resource "aws_route_table" "privateroute" {
     Name = "${var.env_code}-PrivateRouteTable${count.index}"
   }
 }
-
 
 resource "aws_route_table_association" "associatepriv" {
   count = length(local.private_subnet_cidr)
