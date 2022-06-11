@@ -14,7 +14,7 @@ provider "aws" {
 
 variable "env_code" {
   type        = string
-  default     = "MyTest"
+  default     = "ProjectIAC"
   description = "Tag Naming Variable"
 }
 
@@ -25,6 +25,28 @@ resource "aws_vpc" "myvpc" {
 
   tags = {
     Name = "${var.env_code}-VPC"
+  }
+}
+
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.myvpc.id
+
+  ingress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.env_code}SecurityGrp"
   }
 }
 
@@ -126,4 +148,28 @@ resource "aws_route_table_association" "associatepriv" {
 
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.privateroute[count.index].id
+}
+
+resource "aws_instance" "apacheweb" {
+  count = 1
+
+  ami                         = "ami-0f095f89ae15be883"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public[0].id
+  associate_public_ip_address = true
+  key_name                    = "terraformkey"
+  user_data                   = <<EOF
+
+  #! /bin/bash
+  sudo yum update -y
+  sudo yum install -y httpd
+  sudo systemctl start httpd.service
+  sudo systemctl enable httpd.service
+  echo "The page was created by the user data" | sudo tee /var/www/html/index.html
+
+  EOF
+
+  tags = {
+    Name = "${var.env_code}InstancePublic"
+  }
 }
