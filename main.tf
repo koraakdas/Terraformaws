@@ -59,7 +59,7 @@ resource "aws_default_security_group" "default" {
   }
 
   tags = {
-    Name = "${var.env_code}SecurityGrp"
+    Name = "${var.env_code}DefaultSecurityGrp"
   }
 }
 
