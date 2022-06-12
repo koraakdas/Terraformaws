@@ -45,7 +45,7 @@ resource "aws_default_security_group" "default" {
   }
 
   ingress {
-    protocol    = ""
+    protocol    = "tcp"
     from_port   = 80
     to_port     = 80
     cidr_blocks = [var.client_public_ip]
@@ -164,13 +164,12 @@ resource "aws_route_table_association" "associatepriv" {
 }
 
 data "aws_ami" "amazon_linux" {
-  executable_users = ["self"]
   most_recent      = true
-  owners           = ["self"]
+  owners           = ["149500239764"]
 
   filter {
     name   = "name"
-    values = ["/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"]
+    values  = ["ami-rhel8"]
   }
 }
 
