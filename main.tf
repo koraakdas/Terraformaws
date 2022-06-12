@@ -18,6 +18,12 @@ variable "env_code" {
   description = "Tag Naming Variable"
 }
 
+variable "client_public_ip" {
+  type        = string
+  default     = "192.168.1.116/24"
+  description = "client IP address"
+}
+
 # All Resources for AWS:
 
 resource "aws_vpc" "myvpc" {
@@ -35,14 +41,14 @@ resource "aws_default_security_group" "default" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
-    cidr_blocks = ["192.168.1.116/24"]
+    cidr_blocks = ["var.client_public_ip"]
   }
 
   ingress {
     protocol    = ""
     from_port   = 80
     to_port     = 80
-    cidr_blocks = ["192.168.1.116/24"]
+    cidr_blocks = ["var.client_public_ip"]
   }
 
   egress {
