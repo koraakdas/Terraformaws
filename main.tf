@@ -32,10 +32,17 @@ resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.myvpc.id
 
   ingress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "tcp"
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = ["192.168.1.116/24"]
+  }
+
+  ingress {
+    protocol    = ""
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["192.168.1.116/24"]
   }
 
   egress {
