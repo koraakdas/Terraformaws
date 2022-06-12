@@ -20,7 +20,7 @@ variable "env_code" {
 
 variable "client_public_ip" {
   type        = string
-  default     = "192.168.1.116/24"
+  default     = "192.168.1.0/24"
   description = "client IP address"
 }
 
@@ -41,14 +41,14 @@ resource "aws_default_security_group" "default" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
-    cidr_blocks = ["var.client_public_ip"]
+    cidr_blocks = [var.client_public_ip]
   }
 
   ingress {
     protocol    = ""
     from_port   = 80
     to_port     = 80
-    cidr_blocks = ["var.client_public_ip"]
+    cidr_blocks = [var.client_public_ip]
   }
 
   egress {
@@ -163,10 +163,20 @@ resource "aws_route_table_association" "associatepriv" {
   route_table_id = aws_route_table.privateroute[count.index].id
 }
 
-resource "aws_instance" "apacheweb" {
-  count = 1
+data "aws_ami" "amazon_linux" {
+  executable_users = ["self"]
+  most_recent      = true
+  owners           = ["self"]
 
-  ami                         = "ami-0f095f89ae15be883"
+  filter {
+    name   = "name"
+    values = ["/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"]
+  }
+}
+
+resource "aws_instance" "apacheweb" {
+
+  ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = true
