@@ -157,7 +157,7 @@ resource "aws_instance" "apacheweb" {
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = true
-  key_name                    = "terraformkey"
+  key_name                    = "main"
   user_data                   = <<EOF
 
   #! /bin/bash
