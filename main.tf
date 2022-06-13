@@ -176,11 +176,11 @@ resource "aws_instance" "apacheweb" {
   user_data                   = <<EOF
 
 #!/bin/bash
-sudo yum update -y
-sudo yum install -y httpd
-sudo systemctl start httpd.service
-sudo systemctl enable httpd.service
-echo "The page was created by the user data" | sudo tee /var/www/html/index.html
+yum update -y
+yum install -y httpd
+systemctl start httpd.service
+systemctl enable httpd.service
+echo "The page was created by the user data" | tee /var/www/html/index.html
 
 EOF
 
