@@ -20,7 +20,7 @@ variable "env_code" {
 
 variable "client_public_ip" {
   type        = string
-  default     = "192.168.1.0/24"
+  default     = "103.242.199.145/32"
   description = "client IP address"
 }
 
@@ -41,13 +41,6 @@ resource "aws_default_security_group" "default" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
-    cidr_blocks = [var.client_public_ip]
-  }
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
     cidr_blocks = [var.client_public_ip]
   }
 
@@ -182,14 +175,14 @@ resource "aws_instance" "apacheweb" {
   key_name                    = "main"
   user_data                   = <<EOF
 
-  #! /bin/bash
-  sudo yum update -y
-  sudo yum install -y httpd
-  sudo systemctl start httpd.service
-  sudo systemctl enable httpd.service
-  echo "The page was created by the user data" | sudo tee /var/www/html/index.html
+#!/bin/bash
+sudo yum update -y
+sudo yum install -y httpd
+sudo systemctl start httpd.service
+sudo systemctl enable httpd.service
+echo "The page was created by the user data" | sudo tee /var/www/html/index.html
 
-  EOF
+EOF
 
   tags = {
     Name = "${var.env_code}InstancePublic"
