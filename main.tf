@@ -174,14 +174,12 @@ resource "aws_instance" "apacheweb" {
   associate_public_ip_address = true
   key_name                    = "main"
   user_data                   = <<EOF
-
 #!/bin/bash
 yum update -y
 yum install -y httpd
 systemctl start httpd.service
 systemctl enable httpd.service
 echo "The page was created by the user data" | tee /var/www/html/index.html
-
 EOF
 
   tags = {
