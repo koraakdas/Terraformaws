@@ -20,7 +20,7 @@ variable "env_code" {
 
 variable "client_public_ip" {
   type        = string
-  default     = "103.242.199.145/32"
+  default     = "103.242.199.72/32"
   description = "client IP address"
 }
 
@@ -41,6 +41,13 @@ resource "aws_default_security_group" "default" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
+    cidr_blocks = [var.client_public_ip]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = [var.client_public_ip]
   }
 
@@ -157,12 +164,12 @@ resource "aws_route_table_association" "associatepriv" {
 }
 
 data "aws_ami" "amazon_linux" {
-  most_recent      = true
-  owners           = ["149500239764"]
+  most_recent = true
+  owners      = ["149500239764"]
 
   filter {
     name   = "name"
-    values  = ["ami-rhel8"]
+    values = ["ami-rhel8"]
   }
 }
 
@@ -174,14 +181,12 @@ resource "aws_instance" "apacheweb" {
   associate_public_ip_address = true
   key_name                    = "main"
   user_data                   = <<EOF
-
 #!/bin/bash
 yum update -y
 yum install -y httpd
 systemctl start httpd.service
 systemctl enable httpd.service
 echo "The page was created by the user data" | tee /var/www/html/index.html
-
 EOF
 
   tags = {
