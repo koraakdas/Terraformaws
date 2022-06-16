@@ -5,6 +5,12 @@ terraform {
       version = "~> 3.0"
     }
   }
+  backend "s3" {
+    bucket         = "projectiacbucket"
+    key            = "terraform.tfstate"
+    dynamodb_table = "projectiacdb"
+    region         = "us-east-1"
+  }
 }
 
 # Provider Block
@@ -20,7 +26,7 @@ variable "env_code" {
 
 variable "client_public_ip" {
   type        = string
-  default     = "103.242.199.72/32"
+  default     = "103.242.199.18/32"
   description = "client IP address"
 }
 
