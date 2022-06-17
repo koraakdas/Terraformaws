@@ -14,8 +14,14 @@ provider "aws" {
 
 variable "env_code" {
   type        = string
-  default     = "MyTest"
+  default     = "ProjectIAC"
   description = "Tag Naming Variable"
+}
+
+variable "client_public_ip" {
+  type        = string
+  default     = "103.242.199.72/32"
+  description = "client IP address"
 }
 
 # All Resources for AWS:
@@ -25,6 +31,35 @@ resource "aws_vpc" "myvpc" {
 
   tags = {
     Name = "${var.env_code}-VPC"
+  }
+}
+
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.myvpc.id
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 22
+    to_port     = 22
+    cidr_blocks = [var.client_public_ip]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = [var.client_public_ip]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.env_code}DefaultSecurityGrp"
   }
 }
 
@@ -126,4 +161,35 @@ resource "aws_route_table_association" "associatepriv" {
 
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.privateroute[count.index].id
+}
+
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["149500239764"]
+
+  filter {
+    name   = "name"
+    values = ["ami-rhel8"]
+  }
+}
+
+resource "aws_instance" "apacheweb" {
+
+  ami                         = data.aws_ami.amazon_linux.id
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public[0].id
+  associate_public_ip_address = true
+  key_name                    = "main"
+  user_data                   = <<EOF
+#!/bin/bash
+yum update -y
+yum install -y httpd
+systemctl start httpd.service
+systemctl enable httpd.service
+echo "The page was created by the user data" | tee /var/www/html/index.html
+EOF
+
+  tags = {
+    Name = "${var.env_code}InstancePublic"
+  }
 }
