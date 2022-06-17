@@ -7,6 +7,13 @@ terraform {
   }
 }
 
+backend "s3" {
+    bucket         = "projectiacbucket"
+    key            = "terraform.tfstate"
+    dynamodb_table = "projectiacdb"
+    region         = "us-east-1"
+  }
+
 # Provider Block
 provider "aws" {
   region = "us-east-1"
