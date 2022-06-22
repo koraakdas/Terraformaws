@@ -5,33 +5,26 @@ terraform {
       version = "~> 3.0"
     }
   }
+
   backend "s3" {
     bucket         = "projectiacbucket"
-    key            = "instance.tfstate"
+    key            = "level2.tfstate"
     dynamodb_table = "projectiacdb"
     region         = "us-east-1"
   }
 }
 
-data "terraform_remote_state" "networking" {
+data "terraform_remote_state" "level1" {
   backend = "s3"
   config = {
     bucket = "projectiacbucket"
-    key    = "networking.tfstate"
+    key    = "level1.tfstate"
     region = "us-east-1"
   }
 }
 
-
-# Provider Block
 provider "aws" {
   region = "us-east-1"
-}
-
-variable "env_code" {
-  type        = string
-  default     = "ProjectIAC"
-  description = "Tag Naming Variable"
 }
 
 data "aws_ami" "amazon_linux" {
@@ -45,10 +38,9 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_instance" "apacheweb" {
-
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.micro"
-  subnet_id                   = data.terraform_remote_state.networking.outputs.public0_subnet_id
+  subnet_id                   = data.terraform_remote_state.level1.outputs.public0_subnet_id
   associate_public_ip_address = true
   key_name                    = "main"
   user_data                   = <<EOF

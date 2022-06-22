@@ -7,27 +7,14 @@ terraform {
   }
   backend "s3" {
     bucket         = "projectiacbucket"
-    key            = "networking.tfstate"
+    key            = "level1.tfstate"
     dynamodb_table = "projectiacdb"
     region         = "us-east-1"
   }
 }
 
-# Provider Block
 provider "aws" {
   region = "us-east-1"
-}
-
-variable "env_code" {
-  type        = string
-  default     = "ProjectIAC"
-  description = "Tag Naming Variable"
-}
-
-variable "client_public_ip" {
-  type        = string
-  default     = "103.242.199.134/32"
-  description = "client IP address"
 }
 
 # All Resources for AWS:
