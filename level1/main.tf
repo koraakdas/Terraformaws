@@ -5,30 +5,16 @@ terraform {
       version = "~> 3.0"
     }
   }
-}
-
-backend "s3" {
+  backend "s3" {
     bucket         = "projectiacbucket"
-    key            = "terraform.tfstate"
+    key            = "level1.tfstate"
     dynamodb_table = "projectiacdb"
     region         = "us-east-1"
   }
+}
 
-# Provider Block
 provider "aws" {
   region = "us-east-1"
-}
-
-variable "env_code" {
-  type        = string
-  default     = "ProjectIAC"
-  description = "Tag Naming Variable"
-}
-
-variable "client_public_ip" {
-  type        = string
-  default     = "103.242.199.72/32"
-  description = "client IP address"
 }
 
 # All Resources for AWS:
@@ -168,35 +154,4 @@ resource "aws_route_table_association" "associatepriv" {
 
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.privateroute[count.index].id
-}
-
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["149500239764"]
-
-  filter {
-    name   = "name"
-    values = ["ami-rhel8"]
-  }
-}
-
-resource "aws_instance" "apacheweb" {
-
-  ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = "t2.micro"
-  subnet_id                   = aws_subnet.public[0].id
-  associate_public_ip_address = true
-  key_name                    = "main"
-  user_data                   = <<EOF
-#!/bin/bash
-yum update -y
-yum install -y httpd
-systemctl start httpd.service
-systemctl enable httpd.service
-echo "The page was created by the user data" | tee /var/www/html/index.html
-EOF
-
-  tags = {
-    Name = "${var.env_code}InstancePublic"
-  }
 }
