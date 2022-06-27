@@ -14,9 +14,13 @@ provider "aws" {
 
 resource "aws_s3_bucket" "state_storage" {
   bucket = "projectiacbucket"
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "storage_versioning" {
+  bucket = aws_s3_bucket.state_storage.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
