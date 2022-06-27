@@ -1,6 +1,6 @@
 variable "env_code" {
   type        = string
-  default     = "ProjectIAC"
+  default     = "ProjIAC"
   description = "Tag Naming Variable"
 }
 

@@ -13,3 +13,11 @@ output "private0_subnet_id" {
 output "private1_subnet_id" {
   value = aws_subnet.private[1].id
 }
+
+output "vpcid" {
+  value = aws_vpc.myvpc.id
+}
+
+output "dfsecuritygrp" {
+  value = aws_default_security_group.default.id
+}

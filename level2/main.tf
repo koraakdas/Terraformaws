@@ -27,6 +27,43 @@ provider "aws" {
   region = "us-east-1"
 }
 
+resource "aws_lb_target_group" "lbtargetgrp" {
+  name        = "${var.env_code}-LBTargetGrp"
+  target_type = "instance"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = data.terraform_remote_state.level1.outputs.vpcid
+}
+
+resource "aws_lb" "applb" {
+  name               = "${var.env_code}-AppLB"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [data.terraform_remote_state.level1.outputs.dfsecuritygrp]
+  subnets            = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
+  
+}
+
+resource "aws_lb_listener" "httplstn" {
+  load_balancer_arn = aws_lb.applb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.lbtargetgrp.arn
+  }
+}
+
+resource "aws_lb_target_group_attachment" "targetgrpattch" {
+  target_group_arn = aws_lb_target_group.lbtargetgrp.arn
+  port             = "80"
+  target_id        = aws_instance.apacheweb.id
+  depends_on = [
+    aws_instance.apacheweb
+  ]
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["149500239764"]
