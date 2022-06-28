@@ -27,21 +27,64 @@ provider "aws" {
   region = "us-east-1"
 }
 
+resource "aws_security_group" "instsecgrp" {
+  name        = "InstanceSecurityGrp"
+  description = "Additional Sec Grp for Instances"
+  vpc_id      = data.terraform_remote_state.level1.outputs.vpcid
+}
+
+
+resource "aws_security_group" "lbsecgrp" {
+  name        = "LBSecurityGrp"
+  description = "App Load Blancer Rules"
+  vpc_id      = data.terraform_remote_state.level1.outputs.vpcid
+
+  ingress {
+    description = "load balancer listener port traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description     = "instance listener and health check rule"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.instsecgrp.id]
+  }
+}
+
+resource "aws_security_group_rule" "rule1" {
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.instsecgrp.id
+  source_security_group_id = aws_security_group.lbsecgrp.id
+}
+
 resource "aws_lb_target_group" "lbtargetgrp" {
   name        = "${var.env_code}-LBTargetGrp"
   target_type = "instance"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = data.terraform_remote_state.level1.outputs.vpcid
+
+  health_check {
+    port     = 80
+    protocol = "HTTP"
+
+  }
 }
 
 resource "aws_lb" "applb" {
   name               = "${var.env_code}-AppLB"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [data.terraform_remote_state.level1.outputs.dfsecuritygrp]
   subnets            = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
-
+  security_groups    = [aws_security_group.lbsecgrp.id]
 }
 
 resource "aws_lb_listener" "httplstn" {
@@ -71,7 +114,8 @@ resource "aws_launch_template" "template" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
   key_name                             = "main"
-  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp]
+  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp, aws_security_group.instsecgrp.id]
+  user_data                            = filebase64("apache.sh")
 }
 
 resource "aws_autoscaling_group" "autoscalegrp" {
@@ -81,7 +125,8 @@ resource "aws_autoscaling_group" "autoscalegrp" {
   vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
   target_group_arns   = [aws_lb_target_group.lbtargetgrp.arn]
 
+
   launch_template {
-    id      = aws_launch_template.template.id
+    id = aws_launch_template.template.id
   }
 }
