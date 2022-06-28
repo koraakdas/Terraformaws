@@ -66,6 +66,7 @@ resource "aws_subnet" "public" {
 
   vpc_id     = aws_vpc.myvpc.id
   cidr_block = local.public_subnet_cidr[count.index]
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "${var.env_code} Public${count.index}-Subnet"
@@ -155,4 +156,3 @@ resource "aws_route_table_association" "associatepriv" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.privateroute[count.index].id
 }
-

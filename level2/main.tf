@@ -65,49 +65,23 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_launch_template" "ec2template" {
+resource "aws_launch_template" "template" {
   name                                 = "${var.env_code}-ec2template"
-  ebs_optimized                        = true
   image_id                             = data.aws_ami.amazon_linux.id
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
   key_name                             = "main"
-  vpc_security_group_ids               = ["data.terraform_remote_state.level1.outputs.dfsecuritygrp"]
-
-  monitoring {
-    enabled = true
-  }
-
-  network_interfaces {
-    associate_public_ip_address = true
-  }
-
-  placement {
-    availability_zone = "us-east-1"
-  }
-
-  tag_specifications {
-    resource_type = "instance"
-  }
-
-  user_data = <<EOF
-#!/bin/bash
-yum update -y
-yum install -y httpd
-systemctl start httpd.service
-systemctl enable httpd.service
-echo "The page was created by the user data" | tee /var/www/html/index.html
-EOF
+  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp]
 }
 
 resource "aws_autoscaling_group" "autoscalegrp" {
-  desired_capacity    = 1
-  max_size            = 1
+  desired_capacity    = 2
+  max_size            = 2
   min_size            = 1
   vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
   target_group_arns   = [aws_lb_target_group.lbtargetgrp.arn]
 
-    launch_template {
-    id      = aws_launch_template.ec2template.id
+  launch_template {
+    id      = aws_launch_template.template.id
   }
 }
