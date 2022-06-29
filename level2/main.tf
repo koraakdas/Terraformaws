@@ -57,12 +57,22 @@ resource "aws_security_group" "lbsecgrp" {
 }
 
 resource "aws_security_group_rule" "rule1" {
+  description              = "lb to inst security grp ingress"
   type                     = "ingress"
   from_port                = 80
   to_port                  = 80
   protocol                 = "tcp"
   security_group_id        = aws_security_group.instsecgrp.id
   source_security_group_id = aws_security_group.lbsecgrp.id
+}
+
+resource "aws_security_group_rule" "rule2" {
+  type                     = "egress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  cidr_blocks              = ["0.0.0.0/0"]
+  security_group_id        = aws_security_group.instsecgrp.id
 }
 
 resource "aws_lb_target_group" "lbtargetgrp" {
@@ -83,6 +93,7 @@ resource "aws_lb" "applb" {
   name               = "${var.env_code}-AppLB"
   internal           = false
   load_balancer_type = "application"
+  ip_address_type    = "ipv4"
   subnets            = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
   security_groups    = [aws_security_group.lbsecgrp.id]
 }
@@ -114,7 +125,7 @@ resource "aws_launch_template" "template" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
   key_name                             = "main"
-  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp, aws_security_group.instsecgrp.id]
+  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp,aws_security_group.instsecgrp.id]
   user_data                            = filebase64("apache.sh")
 }
 
@@ -122,7 +133,7 @@ resource "aws_autoscaling_group" "autoscalegrp" {
   desired_capacity    = 2
   max_size            = 2
   min_size            = 1
-  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
+  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id,data.terraform_remote_state.level1.outputs.public1_subnet_id]
   target_group_arns   = [aws_lb_target_group.lbtargetgrp.arn]
 
 

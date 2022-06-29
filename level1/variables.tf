@@ -6,6 +6,6 @@ variable "env_code" {
 
 variable "client_public_ip" {
   type        = string
-  default     = "103.242.199.160/32"
+  default     = "103.242.199.49/32"
   description = "client IP address"
 }
