@@ -1,11 +1,11 @@
 variable "env_code" {
   type        = string
-  default     = "ProjectIAC"
+  default     = "ProjIAC"
   description = "Tag Naming Variable"
 }
 
 variable "client_public_ip" {
   type        = string
-  default     = "115.187.59.35/32"
+  default     = "103.242.199.49/32"
   description = "client IP address"
 }
