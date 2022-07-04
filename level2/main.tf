@@ -67,12 +67,12 @@ resource "aws_security_group_rule" "rule1" {
 }
 
 resource "aws_security_group_rule" "rule2" {
-  type                     = "egress"
-  from_port                = 0
-  to_port                  = 0
-  protocol                 = "-1"
-  cidr_blocks              = ["0.0.0.0/0"]
-  security_group_id        = aws_security_group.instsecgrp.id
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.instsecgrp.id
 }
 
 resource "aws_lb_target_group" "lbtargetgrp" {
@@ -119,21 +119,76 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+resource "aws_iam_policy" "s3policy" {
+  name        = "s3_permissionPolicy"
+  description = "Permission Level to access S3"
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "s3-object-lambda:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+  })
+}
+
+resource "aws_iam_role" "ec2instrole" {
+  name = "EC2_InstanceRole"
+  path = "/"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": "ec2.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_policy_attachment" "policy_role_attach" {
+  name       = "InstancePolicyRole"
+  roles      = [aws_iam_role.ec2instrole.name]
+  policy_arn = aws_iam_policy.s3policy.arn
+}
+
+resource "aws_iam_instance_profile" "ec2instprofile" {
+  name = "EC2_instanceRole"
+  role = aws_iam_role.ec2instrole.name
+}
+
 resource "aws_launch_template" "template" {
   name                                 = "${var.env_code}-ec2template"
   image_id                             = data.aws_ami.amazon_linux.id
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
   key_name                             = "main"
-  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp,aws_security_group.instsecgrp.id]
+  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp, aws_security_group.instsecgrp.id]
   user_data                            = filebase64("apache.sh")
+
+  iam_instance_profile {
+    arn = aws_iam_instance_profile.ec2instprofile.arn
+  }
 }
 
 resource "aws_autoscaling_group" "autoscalegrp" {
   desired_capacity    = 2
   max_size            = 2
   min_size            = 1
-  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id,data.terraform_remote_state.level1.outputs.public1_subnet_id]
+  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
   target_group_arns   = [aws_lb_target_group.lbtargetgrp.arn]
 
 
