@@ -124,16 +124,16 @@ resource "aws_iam_policy" "s3policy" {
   description = "Permission Level to access S3"
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:*",
-                "s3-object-lambda:*"
-            ],
-            "Resource": "*"
-        }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:*",
+          "s3-object-lambda:*"
+        ],
+        "Resource" : "*"
+      }
     ]
   })
 }
@@ -188,7 +188,7 @@ resource "aws_autoscaling_group" "autoscalegrp" {
   desired_capacity    = 2
   max_size            = 2
   min_size            = 1
-  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.public0_subnet_id, data.terraform_remote_state.level1.outputs.public1_subnet_id]
+  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.private0_subnet_id, data.terraform_remote_state.level1.outputs.private1_subnet_id]
   target_group_arns   = [aws_lb_target_group.lbtargetgrp.arn]
 
 

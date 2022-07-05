@@ -56,6 +56,10 @@ resource "aws_default_security_group" "default" {
   }
 }
 
+data "aws_availability_zones" "az" {
+  state = "available"
+}
+
 locals {
   public_subnet_cidr  = ["10.0.0.0/24", "10.0.1.0/24"]
   private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
@@ -64,9 +68,10 @@ locals {
 resource "aws_subnet" "public" {
   count = length(local.public_subnet_cidr)
 
-  vpc_id     = aws_vpc.myvpc.id
-  cidr_block = local.public_subnet_cidr[count.index]
+  vpc_id                  = aws_vpc.myvpc.id
+  cidr_block              = local.public_subnet_cidr[count.index]
   map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.az.names[count.index]
 
   tags = {
     Name = "${var.env_code} Public${count.index}-Subnet"
@@ -76,8 +81,9 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private" {
   count = length(local.private_subnet_cidr)
 
-  vpc_id     = aws_vpc.myvpc.id
-  cidr_block = local.private_subnet_cidr[count.index]
+  vpc_id            = aws_vpc.myvpc.id
+  cidr_block        = local.private_subnet_cidr[count.index]
+  availability_zone = data.aws_availability_zones.az.names[count.index]
 
   tags = {
     Name = "${var.env_code} Private${count.index}-Subnet"
