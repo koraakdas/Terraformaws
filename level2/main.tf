@@ -124,16 +124,16 @@ resource "aws_iam_policy" "s3policy" {
   description = "Permission Level to access S3"
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:*",
-                "s3-object-lambda:*"
-            ],
-            "Resource": "*"
-        }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:*",
+          "s3-object-lambda:*"
+        ],
+        "Resource" : "*"
+      }
     ]
   })
 }
