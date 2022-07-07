@@ -32,13 +32,6 @@ resource "aws_default_security_group" "default" {
 
   ingress {
     protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = [var.client_public_ip]
-  }
-
-  ingress {
-    protocol    = "tcp"
     from_port   = 80
     to_port     = 80
     cidr_blocks = [var.client_public_ip]
