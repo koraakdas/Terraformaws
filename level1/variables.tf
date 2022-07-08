@@ -4,8 +4,3 @@ variable "env_code" {
   description = "Tag Naming Variable"
 }
 
-variable "client_public_ip" {
-  type        = string
-  default     = "103.242.199.253/32"
-  description = "client IP address"
-}
