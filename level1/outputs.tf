@@ -18,6 +18,3 @@ output "vpcid" {
   value = aws_vpc.myvpc.id
 }
 
-output "dfsecuritygrp" {
-  value = aws_default_security_group.default.id
-}

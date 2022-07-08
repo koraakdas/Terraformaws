@@ -119,25 +119,6 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_iam_policy" "s3policy" {
-  name        = "s3_permissionPolicy"
-  description = "Permission Level to access S3"
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Action" : [
-          "s3:*",
-          "s3-object-lambda:*"
-        ],
-        "Resource" : "*"
-      }
-    ]
-  })
-}
-
 resource "aws_iam_role" "ec2instrole" {
   name = "EC2_InstanceRole"
   path = "/"
@@ -159,10 +140,15 @@ resource "aws_iam_role" "ec2instrole" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "policy_role_attach" {
-  name       = "InstancePolicyRole"
+data "aws_iam_policy" "ssmngpolicy" {
+  arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+}
+
+
+resource "aws_iam_policy_attachment" "policy_ssmrole_attach" {
+  name       = "Instance_SessionMgPolicy_Attachment"
   roles      = [aws_iam_role.ec2instrole.name]
-  policy_arn = aws_iam_policy.s3policy.arn
+  policy_arn = data.aws_iam_policy.ssmngpolicy.arn
 }
 
 resource "aws_iam_instance_profile" "ec2instprofile" {
@@ -176,8 +162,8 @@ resource "aws_launch_template" "template" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
   key_name                             = "main"
-  vpc_security_group_ids               = [data.terraform_remote_state.level1.outputs.dfsecuritygrp, aws_security_group.instsecgrp.id]
-  user_data                            = filebase64("apache.sh")
+  vpc_security_group_ids               = [aws_security_group.instsecgrp.id]
+  user_data                            = filebase64("instprep.sh")
 
   iam_instance_profile {
     arn = aws_iam_instance_profile.ec2instprofile.arn
@@ -185,6 +171,7 @@ resource "aws_launch_template" "template" {
 }
 
 resource "aws_autoscaling_group" "autoscalegrp" {
+  name                = "${var.env_code}-AutoScaleGrp"
   desired_capacity    = 2
   max_size            = 2
   min_size            = 1
