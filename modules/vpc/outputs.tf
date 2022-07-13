@@ -17,4 +17,3 @@ output "private1_subnet_id" {
 output "vpcid" {
   value = aws_vpc.myvpc.id
 }
-
