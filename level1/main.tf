@@ -50,12 +50,21 @@ module "securitygrps" {
 
 }
 
+output "inst_secgrp" {
+  value = module.securitygrps.inst_secgrp
+}
+
 module "apploadbalancer" {
   source = "../modules/apploadbalancer"
 
+  env_code = "ProjIAC"
   vpcid = module.vpc.vpcid
   lb_secgrp = module.securitygrps.lb_secgrp
   public0_subnet_id = module.vpc.public0_subnet_id
   public1_subnet_id = module.vpc.public1_subnet_id
 
+}
+
+output "lbtargetgrp_arn" {
+  value = module.apploadbalancer.lbtargetgrp_arn
 }

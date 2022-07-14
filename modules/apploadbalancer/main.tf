@@ -33,10 +33,6 @@ resource "aws_lb_listener" "httplstn" {
   }
 }
 
-output "inst_secgrp" {
-  value = module.securitygrps.inst_secgrp
-}
-
 output "lbtargetgrp_arn" {
   value = aws_lb_target_group.lbtargetgrp.arn
 }

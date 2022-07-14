@@ -1,13 +1,4 @@
 
-data "terraform_remote_state" "level1" {
-  backend = "s3"
-  config = {
-    bucket = "projectiacbucket"
-    key    = "level1.tfstate"
-    region = "us-east-1"
-  }
-}
-
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["149500239764"]
@@ -16,10 +7,6 @@ data "aws_ami" "amazon_linux" {
     name   = "name"
     values = ["ami-rhel8"]
   }
-}
-
-module "apploadbalancer" {
-  source = "../apploadbalancer"
 }
 
 resource "aws_iam_role" "ec2instrole" {
@@ -65,7 +52,7 @@ resource "aws_launch_template" "template" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_type                        = "t2.micro"
   key_name                             = "main"
-  vpc_security_group_ids               = [module.apploadbalancer.inst_secgrp]
+  vpc_security_group_ids               = [var.inst_secgrp]
   user_data                            = filebase64("${path.module}/instprep.sh")
 
   iam_instance_profile {
@@ -78,8 +65,8 @@ resource "aws_autoscaling_group" "autoscalegrp" {
   desired_capacity    = 2
   max_size            = 2
   min_size            = 1
-  vpc_zone_identifier = [data.terraform_remote_state.level1.outputs.private0subnet, data.terraform_remote_state.level1.outputs.private1subnet]
-  target_group_arns   = [module.apploadbalancer.lbtargetgrp_arn]
+  vpc_zone_identifier = [var.private0subnet, var.private1subnet]
+  target_group_arns   = [var.lbtargetgrp_arn]
 
 
   launch_template {
