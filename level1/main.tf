@@ -19,6 +19,8 @@ provider "aws" {
 
 module "vpc" {
   source = "../modules/vpc"
+
+  env_code = "ProjIAC"
 }
 
 output "public0subnet" {
@@ -39,4 +41,21 @@ output "private1subnet" {
 
 output "vpcid" {
   value = module.vpc.vpcid
+}
+
+module "securitygrps" {
+  source = "../modules/securitygrps"
+
+  vpcid = module.vpc.vpcid
+
+}
+
+module "apploadbalancer" {
+  source = "../modules/apploadbalancer"
+
+  vpcid = module.vpc.vpcid
+  lb_secgrp = module.securitygrps.lb_secgrp
+  public0_subnet_id = module.vpc.public0_subnet_id
+  public1_subnet_id = module.vpc.public1_subnet_id
+
 }

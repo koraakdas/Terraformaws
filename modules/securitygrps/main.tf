@@ -1,25 +1,16 @@
 
-data "terraform_remote_state" "level1" {
-  backend = "s3"
-  config = {
-    bucket = "projectiacbucket"
-    key    = "level1.tfstate"
-    region = "us-east-1"
-  }
-}
-
 resource "aws_security_group" "instsecgrp" {
   name        = "InstanceSecurityGrp"
   description = "Additional Sec Grp for Instances"
-  vpc_id      = data.terraform_remote_state.level1.outputs.vpcid
+  vpc_id      = var.vpcid
+  
 }
-
 
 resource "aws_security_group" "lbsecgrp" {
   name        = "LBSecurityGrp"
   description = "App Load Blancer Rules"
-  vpc_id      = data.terraform_remote_state.level1.outputs.vpcid
-
+  vpc_id      = var.vpcid
+  
   ingress {
     description = "load balancer listener port traffic"
     from_port   = 80
