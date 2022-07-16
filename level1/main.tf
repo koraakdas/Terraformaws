@@ -20,25 +20,9 @@ provider "aws" {
 module "vpc" {
   source = "../modules/vpc"
 
-  env_code = "ProjIAC"
-}
-
-output "public0subnet" {
-  value = module.vpc.public0_subnet_id
-}
-
-output "public1subnet" {
-  value = module.vpc.public1_subnet_id
-}
-
-output "private0subnet" {
-  value = module.vpc.private0_subnet_id
-}
-
-output "private1subnet" {
-  value = module.vpc.private1_subnet_id
-}
-
-output "vpcid" {
-  value = module.vpc.vpcid
+  env_code   = "ProjIAC"
+  pubsubnet  = ["10.0.0.0/24", "10.0.1.0/24"]
+  privsubnet = ["10.0.3.0/24", "10.0.4.0/24"]
+  vpccidr    = "10.0.0.0/16"
+  secgrpcidr = "0.0.0.0/0"
 }

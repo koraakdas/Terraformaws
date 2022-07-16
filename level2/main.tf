@@ -21,16 +21,17 @@ provider "aws" {
 module "securitygrps" {
   source = "../modules/securitygrps"
 
-  vpcid = data.terraform_remote_state.level1.outputs.vpcid
+  vpcid      = data.terraform_remote_state.level1.outputs.vpcid
+  secgrpcidr = ["0.0.0.0/0"]
 
 }
 
 module "apploadbalancer" {
   source = "../modules/apploadbalancer"
 
-  env_code = "ProjIAC"
-  vpcid = data.terraform_remote_state.level1.outputs.vpcid
-  lb_secgrp = module.securitygrps.lb_secgrp
+  env_code          = "ProjIAC"
+  vpcid             = data.terraform_remote_state.level1.outputs.vpcid
+  lb_secgrp         = module.securitygrps.lb_secgrp
   public0_subnet_id = data.terraform_remote_state.level1.outputs.public0subnet
   public1_subnet_id = data.terraform_remote_state.level1.outputs.public1subnet
 
@@ -39,8 +40,8 @@ module "apploadbalancer" {
 module "ec2instance" {
   source = "../modules/ec2"
 
-  inst_secgrp = module.securitygrps.inst_secgrp
-  private0subnet = data.terraform_remote_state.level1.outputs.private0subnet
-  private1subnet = data.terraform_remote_state.level1.outputs.private1subnet
+  inst_secgrp     = module.securitygrps.inst_secgrp
+  private0subnet  = data.terraform_remote_state.level1.outputs.private0subnet
+  private1subnet  = data.terraform_remote_state.level1.outputs.private1subnet
   lbtargetgrp_arn = module.apploadbalancer.lbtargetgrp_arn
 }

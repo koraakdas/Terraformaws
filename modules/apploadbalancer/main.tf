@@ -32,7 +32,3 @@ resource "aws_lb_listener" "httplstn" {
     target_group_arn = aws_lb_target_group.lbtargetgrp.arn
   }
 }
-
-output "lbtargetgrp_arn" {
-  value = aws_lb_target_group.lbtargetgrp.arn
-}

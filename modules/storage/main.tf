@@ -20,7 +20,7 @@ resource "aws_s3_bucket_ownership_controls" "example" {
 }
 
 resource "aws_dynamodb_table" "lock" {
-  name           = "projectiacdb"
+  name           = var.dbname
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
@@ -31,3 +31,4 @@ resource "aws_dynamodb_table" "lock" {
     type = "S"
   }
 }
+

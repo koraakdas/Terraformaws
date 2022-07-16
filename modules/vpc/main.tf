@@ -1,6 +1,6 @@
 
 resource "aws_vpc" "myvpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpccidr
 
   tags = {
     Name = "${var.env_code}-VPC"
@@ -12,8 +12,8 @@ data "aws_availability_zones" "az" {
 }
 
 locals {
-  public_subnet_cidr  = ["10.0.0.0/24", "10.0.1.0/24"]
-  private_subnet_cidr = ["10.0.3.0/24", "10.0.4.0/24"]
+  public_subnet_cidr  = [var.pubsubnet[0], var.pubsubnet[1]]
+  private_subnet_cidr = [var.privsubnet[0], var.privsubnet[1]]
 }
 
 resource "aws_subnet" "public" {
@@ -76,7 +76,7 @@ resource "aws_route_table" "publicroute" {
   vpc_id = aws_vpc.myvpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.secgrpcidr
     gateway_id = aws_internet_gateway.igw.id
   }
 
@@ -98,7 +98,7 @@ resource "aws_route_table" "privateroute" {
   vpc_id = aws_vpc.myvpc.id
 
   route {
-    cidr_block     = "0.0.0.0/0"
+    cidr_block     = var.secgrpcidr
     nat_gateway_id = aws_nat_gateway.ngw[count.index].id
   }
 

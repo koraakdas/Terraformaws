@@ -14,4 +14,6 @@ provider "aws" {
 
 module "storage" {
   source = "../modules/storage"
+
+  dbname = "projectiacdb"
 }

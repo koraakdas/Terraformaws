@@ -16,7 +16,7 @@ resource "aws_security_group" "lbsecgrp" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.secgrpcidr
   }
 
   egress {
@@ -43,14 +43,6 @@ resource "aws_security_group_rule" "rule2" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.secgrpcidr
   security_group_id = aws_security_group.instsecgrp.id
-}
-
-output "inst_secgrp" {
-  value = aws_security_group.instsecgrp.id
-}
-
-output "lb_secgrp" {
-  value = aws_security_group.lbsecgrp.id
 }

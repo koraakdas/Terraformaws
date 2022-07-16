@@ -5,16 +5,21 @@ variable "env_code" {
 
 variable "vpcid" {
   type = string
+  description = "VPC ID"
 }
 
 variable "lb_secgrp" {
   type = string
+  description = "AppLoadbalancer Security Group"
 }
 
 variable "public0_subnet_id" {
   type = string
+  description = "Public0 subnet Range"
 }
 
 variable "public1_subnet_id" {
   type = string
+  description = "Public1 Subnet Range"
 }
+
