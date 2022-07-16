@@ -1,20 +1,20 @@
-output "public0_subnet_id" {
-  value = aws_subnet.public[0].id
+
+output "public0subnet" {
+  value = module.vpc.public0_subnet_id
 }
 
-output "public1_subnet_id" {
-  value = aws_subnet.public[1].id
+output "public1subnet" {
+  value = module.vpc.public1_subnet_id
 }
 
-output "private0_subnet_id" {
-  value = aws_subnet.private[0].id
+output "private0subnet" {
+  value = module.vpc.private0_subnet_id
 }
 
-output "private1_subnet_id" {
-  value = aws_subnet.private[1].id
+output "private1subnet" {
+  value = module.vpc.private1_subnet_id
 }
 
 output "vpcid" {
-  value = aws_vpc.myvpc.id
+  value = module.vpc.vpcid
 }
-
