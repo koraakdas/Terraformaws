@@ -23,3 +23,8 @@ variable "public1_subnet_id" {
   description = "Public1 Subnet Range"
 }
 
+variable "domainzone" {
+  type = string
+  description = "Route 53 Domain Zone"
+}
+

@@ -22,6 +22,18 @@ resource "aws_lb" "applb" {
   security_groups    = [var.lb_secgrp]
 }
 
+resource "aws_route53_record" "www" {
+  zone_id = var.domainzone
+  name    = "www"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.applb.dns_name
+    zone_id                = aws_lb.applb.zone_id
+    evaluate_target_health = true
+  }
+}
+
 resource "aws_lb_listener" "httplstn" {
   load_balancer_arn = aws_lb.applb.arn
   port              = "80"
