@@ -5,22 +5,22 @@ variable "env_code" {
 }
 
 variable "inst_secgrp" {
-  type = string
+  type        = string
   description = "EC2 Instance Security Group"
 }
 
 variable "private0subnet" {
-  type = string
+  type        = string
   description = "First Private Subnet Range"
 }
 
 variable "private1subnet" {
-  type = string
+  type        = string
   description = "Second Pivate Subnet Range"
 }
 
 variable "lbtargetgrp_arn" {
-  type = string
+  type        = string
   description = "AppLodabalancer Target Grp ARN"
 }
 

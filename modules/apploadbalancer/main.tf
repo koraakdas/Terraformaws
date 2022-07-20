@@ -34,10 +34,25 @@ resource "aws_route53_record" "www" {
   }
 }
 
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "projectiac.link"
+  validation_method = "DNS"
+
+  tags = {
+    Environment = "${var.env_code}-Cert"
+  }
+}
+
+resource "aws_acm_certificate_validation" "dnsvalidation" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [aws_route53_record.www.fqdn]
+}
+
 resource "aws_lb_listener" "httplstn" {
   load_balancer_arn = aws_lb.applb.arn
   port              = "80"
   protocol          = "HTTP"
+  certificate_arn   = aws_acm_certificate.cert.arn
 
   default_action {
     type             = "forward"

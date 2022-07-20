@@ -1,10 +1,10 @@
 
 variable "vpcid" {
-  type = string
+  type        = string
   description = "VPC ID"
 }
 
 variable "secgrpcidr" {
-  type = list(string)
+  type        = list(string)
   description = "Ingress & Egress Rules CIDR"
 }

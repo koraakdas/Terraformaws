@@ -3,14 +3,14 @@ resource "aws_security_group" "instsecgrp" {
   name        = "InstanceSecurityGrp"
   description = "Additional Sec Grp for Instances"
   vpc_id      = var.vpcid
-  
+
 }
 
 resource "aws_security_group" "lbsecgrp" {
   name        = "LBSecurityGrp"
   description = "App Load Blancer Rules"
   vpc_id      = var.vpcid
-  
+
   ingress {
     description = "load balancer listener port traffic"
     from_port   = 80
