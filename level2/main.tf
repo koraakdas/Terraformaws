@@ -45,5 +45,5 @@ module "ec2instance" {
   private0subnet  = data.terraform_remote_state.level1.outputs.private0subnet
   private1subnet  = data.terraform_remote_state.level1.outputs.private1subnet
   lbtargetgrp_arn = module.apploadbalancer.lbtargetgrp_arn
-  
+
 }
