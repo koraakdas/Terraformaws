@@ -9,5 +9,5 @@ data "terraform_remote_state" "level1" {
 }
 
 data "aws_route53_zone" "projectiaczone" {
-  name         = "projectiac.link"
+  name = "projectiac.link"
 }

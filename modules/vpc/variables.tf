@@ -4,22 +4,22 @@ variable "env_code" {
 }
 
 variable "pubsubnet" {
-  type = list
+  type        = list(any)
   description = "Public Subnet Range"
 }
 
 variable "privsubnet" {
-  type = list
+  type        = list(any)
   description = "Private Subnet Range"
 }
 
 variable "vpccidr" {
-  type = string
+  type        = string
   description = "VPC CIDR Range for the Whole Network"
-  
+
 }
 
 variable "secgrpcidr" {
-  type = string
+  type        = string
   description = "Ingress & Egress Rules CIDR"
 }
